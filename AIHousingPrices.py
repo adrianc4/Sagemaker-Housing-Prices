@@ -10,6 +10,12 @@ import sagemaker
 from sagemaker.debugger import Rule, ProfilerRule, rule_configs
 from sagemaker.session import TrainingInput
 from IPython.display import FileLink, display
+# Imports for model deployment
+from sagemaker.serializers import CSVSerializer
+# Imports for model evaluation
+import numpy as np
+import io
+import sklearn.metrics as metrics
 
 # Specify your bucket name and object key (file path in S3)
 bucket_name = 'housingdatacsv'
@@ -74,7 +80,7 @@ boto3.Session().resource('s3').Bucket(bucket).Object(
 boto3.Session().resource('s3').Bucket(bucket).Object(
     os.path.join(prefix, 'data/validation.csv')).upload_file('validation.csv')
 
-# Model Deployment -----------------------
+# Model Deployment -----------------------------------------------------
 
 # Retrieve information from current sagemaker session and save into variable
 region = sagemaker.Session().boto_region_name
@@ -151,3 +157,70 @@ display("Click link below to view the profiler report", FileLink(
     profiler_report_name+"/profiler-output/profiler-report.html"))
 
 xgb_model.model_data
+
+# Model Deployment ---------------------------------------
+
+# Hosting model through EC2 using deploy method from xgb_model estimator
+xgb_predictor = xgb_model.deploy(
+    initial_instance_count=1,
+    instance_type='ml.t2.medium',
+    serializer=CSVSerializer()
+)
+
+# Retrieve endpoint name
+# Endpoint stays active in ML instance to make,
+# instantaneous predictions until shut down
+xgb_predictor.endpoint_name
+
+# Model Evaluation ------------------------------------------
+
+
+# Function predicts each line of test set
+def predict(data, rows=1000):
+    split_array = np.array_split(data, int(data.shape[0] / float(rows) + 1))
+    predictions = ''
+    for array in split_array:
+        buffer = io.StringIO()
+        np.savetxt(buffer, array, delimiter=',', fmt='%g')
+        predictions_csv = buffer.getvalue()
+        predictions = ','.join([
+            predictions, xgb_predictor.predict(predictions_csv).decode('utf-8')
+        ])
+    return np.fromstring(predictions[1:], sep=',')
+
+
+# plotting predictions of test dataset on histogram
+predictions = predict(test.to_numpy()[:, 1:])
+plt.hist(predictions, bins=30)
+plt.title("Distribution of Predicted Values")
+plt.xlabel("Predicted Value")
+plt.ylabel("Frequency")
+plt.show()
+
+# Evaluation Metrics for Regression
+# Assuming test.iloc[:, 0] is the true target values
+true_values = test.iloc[:, 0]
+print("Mean Absolute Error (MAE):", metrics.mean_absolute_error(true_values,
+                                                                predictions))
+print("Mean Squared Error (MSE):", metrics.mean_squared_error(true_values,
+                                                              predictions))
+print("R-squared (Coefficient of Determination):",
+      metrics.r2_score(true_values, predictions))
+
+# Residuals Plot
+residuals = true_values - predictions
+plt.scatter(predictions, residuals)
+plt.title("Residuals vs Predicted")
+plt.xlabel("Predicted Values")
+plt.ylabel("Residuals")
+plt.axhline(y=0, color='r', linestyle='-')
+plt.show()
+
+# Predicted vs Actual Values Plot
+plt.scatter(predictions, true_values)
+plt.title("Predicted vs Actual Values")
+plt.xlabel("Predicted Values")
+plt.ylabel("Actual Values")
+plt.plot([true_values.min(), true_values.max()], [
+    true_values.min(), true_values.max()], 'k--', lw=2)
+plt.show()
