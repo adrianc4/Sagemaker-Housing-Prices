@@ -191,7 +191,7 @@ def predict(data, rows=1000):
 
 # plotting predictions of test dataset on histogram
 predictions = predict(test.to_numpy()[:, 1:])
-plt.hist(predictions, bins=30)
+plt.hist(predictions, bins=30, color='blue')
 plt.title("Distribution of Predicted Values")
 plt.xlabel("Predicted Value")
 plt.ylabel("Frequency")
@@ -209,7 +209,8 @@ print("R-squared (Coefficient of Determination):",
 
 # Residuals Plot
 residuals = true_values - predictions
-plt.scatter(predictions, residuals)
+# Purple color for residuals
+plt.scatter(predictions, residuals, color='purple')
 plt.title("Residuals vs Predicted")
 plt.xlabel("Predicted Values")
 plt.ylabel("Residuals")
@@ -217,10 +218,14 @@ plt.axhline(y=0, color='r', linestyle='-')
 plt.show()
 
 # Predicted vs Actual Values Plot
-plt.scatter(predictions, true_values)
+# Blue for predicted
+plt.scatter(predictions, true_values, color='blue', label='Predicted Values')
+# Green for actual
+plt.scatter(true_values, true_values, color='green', alpha=0.5, label='Actual Values')
 plt.title("Predicted vs Actual Values")
 plt.xlabel("Predicted Values")
 plt.ylabel("Actual Values")
 plt.plot([true_values.min(), true_values.max()], [
     true_values.min(), true_values.max()], 'k--', lw=2)
+plt.legend()
 plt.show()
