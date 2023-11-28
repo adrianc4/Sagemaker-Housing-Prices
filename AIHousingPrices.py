@@ -1,5 +1,6 @@
 import boto3
 import pandas as pd
+import os
 from io import StringIO
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -18,8 +19,10 @@ data = obj['Body'].read().decode('utf-8')
 # Convert the string data to a pandas DataFrame
 df = pd.read_csv(StringIO(data))
 
+# Converting categorical variable ocean_proximity into one-hot encoding
 df_encoded = pd.get_dummies(df, columns=['ocean_proximity'])
 
+# Split data into features (X) and target (y)
 X = df_encoded.drop('median_house_value', axis=1)
 y = df_encoded['median_house_value']
 
@@ -40,9 +43,11 @@ X_display = df
 X_train_display = X_display.loc[X_train.index]
 X_val_display = X_display.loc[X_test.index]
 
+# Splitting training set into validation set
 X_train, X_val, y_train, y_val = train_test_split(
     X_train, y_train, test_size=0.25, random_state=1)
 
+# Alligning dataset by MedianHouseValue
 train = pd.concat([pd.Series(y_train, index=X_train.index,
                              name='MedianHouseValue'), X_train], axis=1)
 validation = pd.concat([pd.Series(y_val, index=X_val.index,
@@ -50,12 +55,14 @@ validation = pd.concat([pd.Series(y_val, index=X_val.index,
 test = pd.concat([pd.Series(y_test, index=X_test.index,
                             name='MedianHouseValue'), X_test], axis=1)
 
-train
-
-validation
-
-test
-
 # Converting train and validation dataframe objects to CSV
 train.to_csv('train.csv', index=False, header=False)
 validation.to_csv('validation.csv', index=False, header=False)
+
+bucket = 'housingdatacsv'
+prefix = 'model_data'
+
+boto3.Session().resource('s3').Bucket(bucket).Object(
+    os.path.join(prefix, 'data/train.csv')).upload_file('train.csv')
+boto3.Session().resource('s3').Bucket(bucket).Object(
+    os.path.join(prefix, 'data/validation.csv')).upload_file('validation.csv')
