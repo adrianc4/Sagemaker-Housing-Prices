@@ -1,7 +1,7 @@
 # Sagemaker-Housing-Prices
 CPSC 454 Group project
 
-Group Members:
+# Group Members:
 
 Data Science/Analysis:
 Niccolo Chuidian, Chloe Truong
@@ -10,7 +10,7 @@ Model training/ Machine Learning:
 Adrian Charbonneau, Nayeli Umana
 
 
-Requirements:
+# Requirements:
 
 Create Amazon S3 bucket named 'housingdatacsv'
 
@@ -24,7 +24,7 @@ Import code from AIHousingPrices.py to new jupyter notebook isntance and run.
 
 Model will take up to 10 minutes to train and deploy.
 
-Clean up:
+# Clean up:
 
 Open sagemaker console and under inference choose endpoints and delete all.
 
