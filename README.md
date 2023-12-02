@@ -3,7 +3,7 @@ CPSC 454 Group project
 
 # Group Members:
 
-##Data Science/Analysis:
+## Data Science/Analysis:
 Niccolo Chuidian
 
 Chloe Truong
