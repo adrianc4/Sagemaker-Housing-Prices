@@ -4,19 +4,23 @@ CPSC 454 Group project
 # Group Members:
 
 Data Science/Analysis:
-Niccolo Chuidian, Chloe Truong
+Niccolo Chuidian
+
+Chloe Truong
 
 Model training/ Machine Learning:
-Adrian Charbonneau, Nayeli Umana
+Adrian Charbonneau
+
+Nayeli Umana
 
 
 # Requirements:
 
 Create Amazon S3 bucket named 'housingdatacsv'
 
-Import clean_house_data.csv into housingdata csv
+Import clean_house_data.csv into housingdatacsv bucket main directory
 
-Create folder 'module_data' in housingdatacsv main directory
+Create empty folder 'module_data' in housingdatacsv main directory
 
 Create jupyter notebook instance with kernal conda_python3
 
