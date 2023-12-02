@@ -3,12 +3,12 @@ CPSC 454 Group project
 
 # Group Members:
 
-Data Science/Analysis:
+##Data Science/Analysis:
 Niccolo Chuidian
 
 Chloe Truong
 
-Model training/ Machine Learning:
+## Model training/ Machine Learning:
 Adrian Charbonneau
 
 Nayeli Umana
